@@ -27,10 +27,10 @@ class RuntimeProfiles(unittest.TestCase):
         self.assertEqual(profiles.PROFILES['11.6.0'],
                          'a490d9a08b71a2d9af138d24528d3d40d65b37b06911627c53a2915c6cac0754')
 
-    def test_1160_has_draft_resources_but_no_export_abi(self):
+    def test_1160_has_version_pinned_export_abi_and_draft_resources(self):
         p=profiles.PROFILE_PREFIX+'11.6.0'
-        self.assertNotIn(p,profiles.EXPORT_PROFILES)
-        self.assertEqual(profiles.RESOURCE_PROFILES,profiles.EXPORT_PROFILES|{p})
+        self.assertIn(p,profiles.EXPORT_PROFILES)
+        self.assertEqual(profiles.RESOURCE_PROFILES,profiles.EXPORT_PROFILES)
         profiles.validate_resource_profile(p,profiles.RESOURCE_CAPTURE_PROFILE)
         with self.assertRaises(ValueError):
             profiles.validate_resource_profile(p,p)
@@ -48,11 +48,11 @@ class RuntimeProfiles(unittest.TestCase):
             profiles.validate_identity(self.info('11.5.1'),profiles.PROFILES['11.5.0'])
 
     def test_export_only_allows_same_reviewed_runtime(self):
-        for v in ('11.5.0','11.4.2'):
+        for v in ('11.6.0','11.5.0','11.4.2'):
             p=profiles.PROFILE_PREFIX+v
             profiles.validate_export_profiles(p,p)
         for a,b in [('11.4.2','11.5.0'),('11.5.0','11.4.2'),('11.4.0','11.4.0'),('11.5.1','11.5.1'),
-                    ('11.6.0','11.6.0'),('11.5.0','11.6.0'),('11.6.0','11.5.0')]:
+                    ('11.6.1','11.6.1'),('11.5.0','11.6.0'),('11.6.0','11.5.0')]:
             with self.subTest(a=a,b=b),self.assertRaises(ValueError):
                 profiles.validate_export_profiles(profiles.PROFILE_PREFIX+a,profiles.PROFILE_PREFIX+b)
 

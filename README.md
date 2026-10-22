@@ -1,5 +1,7 @@
 # Jianying Headless
 
+本 fork 包含已在本机验证的 2026-10-22 兼容修复及 11.6 基础原生后台导出补丁；当前能力以 [补丁说明](docs/LOCAL-116-NATIVE.md) 为准，下文保留上游说明。
+
 面向剪映专业版 macOS 的本地自动化工具。通过结构化剪辑计划生成可编辑草稿，
 在独立副本中修改多轨工程，并调用本机剪映引擎导出 MP4。
 
@@ -84,7 +86,7 @@ Windows 云端使用本仓库公开 IG 案例验证了完整解码、帧数与�
 ## 快速开始
 
 ```bash
-git clone https://github.com/mcncarl/jianying-headless.git
+git clone https://github.com/Daemon1990/jianying-headless.git
 cd jianying-headless
 python3 tools/build_native_codec.py
 python3 skills/yichen-jianying-edit/scripts/headless_draft.py doctor

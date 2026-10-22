@@ -212,6 +212,21 @@ def supported_features(timeline):
     return result
 
 
+def validate_116_scope(timeline, runtime_profile):
+    """Local 11.6 evidence covers video cuts, static text and audio volume curves."""
+    if runtime_profile != 'jy14-headless-macos-11.6.0':
+        return
+    materials = timeline.get('materials', {})
+    for bucket in ('drafts', 'common_mask', 'transitions', 'video_effects', 'effects'):
+        j.require(not materials.get(bucket), '11.6 native export is not yet verified for ' + bucket)
+    j.require(all(v.get('type') == 'video' for v in materials.get('videos', [])),
+              '11.6 native image/GIF export is not yet verified')
+    for track in timeline.get('tracks', []):
+        if track.get('type') in {'video', 'text'}:
+            j.require(all(not s.get('common_keyframes') for s in track.get('segments', [])),
+                      '11.6 picture/text keyframe export is not yet verified')
+
+
 def verified_build(path):
     path = Path(path).resolve(strict=True)
     record = j.read_json(path / 'build.json')
@@ -224,6 +239,7 @@ def verified_build(path):
     j.require(record['runtime_profile'] in EXPORT_PROFILES, 'Export requires a reviewed build profile')
     timeline = j.nd.helper()._decrypt_metadata_in_memory(path / 'draft/draft_info.json')
     compound.validate(timeline, edit.basic_validation)
+    validate_116_scope(timeline, record['runtime_profile'])
     j.require(timeline.get('duration', 0) > 0 and timeline.get('tracks'), 'Cannot export an empty timeline')
     return path, record, timeline
 
@@ -517,6 +533,9 @@ def validate_probe(info, settings, duration_us, audio_expected):
 def run(build, out, bitrate=4_000_000, timeout=600):
     build, record, timeline = verified_build(build)
     capabilities = supported_features(timeline)
+    if record['runtime_profile'] == 'jy14-headless-macos-11.6.0':
+        capabilities['content_scope'] = 'local video cuts, static editable text, local audio and volume curves'
+        capabilities['mask_export'] = 'not yet verified on 11.6; rejected before rendering'
     settings = settings_for(timeline, bitrate, timeout)
     job = Path(out)
     j.require(job.is_absolute() and not job.exists() and not job.is_symlink(), 'Export job must be a new absolute directory')

@@ -453,11 +453,22 @@ class AttributePolicyTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, name):
                         j.copy_xattrs(source, Path('/unused'), Path('/audit'))
 
-    def test_provenance_appearance_or_disappearance_remains_blocked(self):
-        for source, copied in (({'com.apple.provenance': b'x'}, {}), ({}, {'com.apple.provenance': b'x'})):
-            with self.subTest(source_has_provenance=bool(source)), patch.object(j, 'write'), patch.object(j.subprocess, 'run'), patch.object(j, 'read_xattrs', return_value=copied):
-                with self.assertRaisesRegex(ValueError, 'provenance'):
-                    j.copy_xattrs(source, Path('/unused'), Path('/audit'))
+    def test_os_added_provenance_is_retained_and_audited(self):
+        copied = {'com.apple.provenance': bytes.fromhex('010200b9d442eeca76230b')}
+        with patch.object(j, 'write') as audit, patch.object(j.subprocess, 'run') as write_attr, \
+                patch.object(j, 'read_xattrs', return_value=copied):
+            staged, changed = j.copy_xattrs({}, Path('/unused'), Path('/audit'))
+        self.assertEqual(staged, copied)
+        self.assertEqual(changed, ['com.apple.provenance'])
+        write_attr.assert_not_called()
+        self.assertEqual(audit.call_args_list[-1].args[1],
+                         {'com.apple.provenance': copied['com.apple.provenance'].hex()})
+
+    def test_provenance_disappearance_remains_blocked(self):
+        with patch.object(j, 'write'), patch.object(j.subprocess, 'run'), \
+                patch.object(j, 'read_xattrs', return_value={}):
+            with self.assertRaisesRegex(ValueError, 'provenance'):
+                j.copy_xattrs({'com.apple.provenance': b'x'}, Path('/unused'), Path('/audit'))
 
 
 if __name__ == '__main__':

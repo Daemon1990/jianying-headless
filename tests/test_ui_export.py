@@ -82,10 +82,11 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual(profiles.UI_EXPORT_PROFILES,
                          frozenset((profiles.PROFILE_PREFIX + '11.6.0',)))
 
-    def test_this_set_is_separate_from_the_headless_export_set(self):
-        self.assertFalse(profiles.UI_EXPORT_PROFILES & profiles.EXPORT_PROFILES)
+    def test_ui_and_headless_profiles_have_independent_evidence(self):
+        self.assertEqual(profiles.UI_EXPORT_PROFILES & profiles.EXPORT_PROFILES,
+                         frozenset((profiles.PROFILE_PREFIX + '11.6.0',)))
         self.assertEqual(profiles.EXPORT_PROFILES,
-                         frozenset(profiles.PROFILE_PREFIX + v for v in ('11.5.0', '11.4.2')))
+                         frozenset(profiles.PROFILE_PREFIX + v for v in ('11.6.0', '11.5.0', '11.4.2')))
 
 
 class DraftChangeTests(unittest.TestCase):

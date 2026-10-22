@@ -7,7 +7,7 @@ PROFILES = {
     '11.4.2': '632c8ddd09ff4a54f876cd8142eb505055ee26d944199506b230949b7e106bd1',
     '11.4.0': 'a1693070036a6678bb5db35f71d2105812ad24a2370e7e91c78712cc0d6455f3',
 }
-EXPORT_PROFILES = frozenset(PROFILE_PREFIX + v for v in ('11.5.0', '11.4.2'))
+EXPORT_PROFILES = frozenset(PROFILE_PREFIX + v for v in ('11.6.0', '11.5.0', '11.4.2'))
 # Deliverables rendered by the editor's own export dialog. This is a separate
 # evidence tier from EXPORT_PROFILES above: it needs no export ABI, proves
 # nothing about one, and its acceptance never carries over to that path.

@@ -660,8 +660,10 @@ def copy_xattrs(source_attrs, destination, audit):
             'Extended attributes could not be preserved before commit: ' + ', '.join(changed)
             + '. No security attribute was stripped. If com.apple.macl differs, this environment '
               'needs a reviewed permission-preservation adapter; do not disable SIP or TCC.')
-    require(('com.apple.provenance' in source_attrs) == ('com.apple.provenance' in copied),
-            'OS provenance attribute disappeared or unexpectedly appeared')
+    # macOS 26.5.2 also adds provenance when the original has none. Retain
+    # that OS-owned attribute; never accept loss of an existing attribute.
+    require('com.apple.provenance' not in source_attrs or 'com.apple.provenance' in copied,
+            'OS provenance attribute disappeared')
     return copied, changed
 
 

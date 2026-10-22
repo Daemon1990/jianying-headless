@@ -1,4 +1,4 @@
-// Process-isolated adapters for exact signed Jianying 11.5.0 and 11.4.2 engines.
+// Process-isolated adapters for exact signed Jianying 11.6.0, 11.5.0 and 11.4.2 engines.
 // No UI attachment, account session, network, or modifications to the app.
 #include <CommonCrypto/CommonDigest.h>
 #include <atomic>
@@ -97,6 +97,9 @@ struct NativeAbi {
 // 11.4.2 constants are retained. Each new row requires disassembly and native
 // fixture validation; a matching marketing version alone is never sufficient.
 static const NativeAbi abi_profiles[] = {
+  {"11.6.0", "a490d9a08b71a2d9af138d24528d3d40d65b37b06911627c53a2915c6cac0754",
+   0x22316ec, 0x2830110, 0x3d8, 0, 669,
+   "[draft_service.cpp:operator():669][LYRA] [LYRA] DraftService::restoreDraft driverRun, callback !"},
   {"11.5.0", "2041482a1aaeffa4d8bd69b836f8cf38807aaad8021bca410d567c59af3bccfa",
    0x21b86dc, 0x274b018, 0x3d8, 0x7e8, 669,
    "[draft_service.cpp:operator():669][LYRA] [LYRA] DraftService::restoreDraft driverRun, callback !"},
@@ -182,6 +185,7 @@ static void configureCapturedMasks(const std::shared_ptr<void>& wrapper) {
   // addVideo reads this hub in both reviewed libraries: 11.4.2 0x3c97268,
   // 11.5.0 0x3d7a708 (field access at 0x3d7aacc).
   if (!active_abi) throw std::runtime_error("native ABI was not selected");
+  if (!active_abi->mask_hub) throw std::runtime_error("mask export is not verified for this ABI");
   auto& hub = *reinterpret_cast<std::string*>(reinterpret_cast<char*>(adapter.get()) + active_abi->mask_hub);
   if (!hub.empty()) throw std::runtime_error("unexpected native default effect resource path");
   const std::filesystem::path root = "/Applications/VideoFusion-macOS.app/Contents/Resources/lumi_js_resources_video";
